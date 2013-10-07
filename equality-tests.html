@@ -1,0 +1,65 @@
+<html>  
+<head>  
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />  
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+<title>Test Chart</title>  
+<script id="sap-ui-bootstrap"
+   type="text/javascript"
+   src="https://sapui5.netweaver.ondemand.com/resources/sap-ui-core.js"
+   data-sap-ui-theme="sap_goldreflection"
+   data-sap-ui-debug="true"
+   data-sap-ui-libs="sap.ui.commons, sap.viz"></script>
+</script>  
+<script src="./lib/d3.min.js"></script>
+<script>  
+
+  var oModel = new sap.ui.model.json.JSONModel({  
+    data : [{ country : 'China', product : 'Car', profit : 32 },  
+    { country : 'France', product : 'Car', profit : 43 },  
+    { country : 'Germany', product : 'Car', profit : 34 },  
+    { country : 'USA', product : 'Car', profit : 25 },  
+    { country : 'China', product : '', profit : 78 },  
+    { country : 'France', product : 'Truck', profit : 86 },  
+    { country : 'Germany', product : 'Truck', profit : 56 },  
+    { country : 'USA', product : false, profit : 76 },  
+    { country : 'China', product : 'Motorcycle', profit : 78 },  
+    { country : 'France', product : 'Motorcycle', profit : 86 },  
+    { country : 'Germany', product : 'Motorcycle', profit : 56 },  
+    { country : 'USA', product : 'Motorcycle', profit : 76 },  
+    { country : 'China', product : 'Bicycle', profit : 78 },  
+    { country : 'France', product : 0, profit : 86 },  
+    { country : 'Germany', product : 'Bicycle', profit : 56 },  
+    { country : 'USA', product : 'Bicycle', profit : 76 }] 
+  });  
+  
+  sap.ui.getCore().setModel(oModel);  
+
+  var filter = new sap.ui.model.Filter("product", sap.ui.model.FilterOperator.EQ, '');
+
+  // Use a custom filter function to do equality properly.
+  // var filter = new sap.ui.model.Filter("product", null, '');
+  // filter.fnTest = function (value) { return value === ''; };
+  
+  var dataset = new sap.viz.ui5.data.FlattenedDataset({  
+    dimensions : [
+      { axis: 1, name: 'Country', value: '{country}' },
+      { axis: 2, name: 'Product', value: '{product}' }
+    ],
+    measures: [
+      { name: 'Profit', value: '{profit}' }
+    ]
+  }).bindData("/data", null, null, [filter]); 
+  
+  new sap.viz.ui5.StackedColumn("oChart",{  
+    width : "100%",  
+    height : "200px",  
+    title : { visible : true, text : 'Profit by Country and Product' },  
+    dataset : dataset
+  }).placeAt("content");  
+  
+</script>  
+</head>  
+<body class="sapUiBody">  
+  <div id="content"></div>  
+</body>  
+</html>  
