@@ -1,0 +1,81 @@
+<html>  
+<head>  
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />  
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+<title>Test Chart</title>  
+<script id="sap-ui-bootstrap"
+   type="text/javascript"
+   src="https://sapui5.netweaver.ondemand.com/resources/sap-ui-core.js"
+   data-sap-ui-theme="sap_goldreflection"
+   data-sap-ui-debug="true"
+   data-sap-ui-libs="sap.ui.commons, sap.viz"></script>
+</script>  
+<script src="./lib/d3.min.js"></script>
+<script>  
+
+  d3.csv('data/2007_small.csv', function(d) {
+    return {
+      // date: parseDate(d),
+      delay: isNaN(+d.ArrDelay) ? 0 : +d.ArrDelay,
+      distance: isNaN(+d.Distance) ? 0 : +d.Distance,
+      carrier: "" + d.UniqueCarrier,
+      month: "" + d.Month
+    };
+  }, function (errors, data) {
+    var oModel = new sap.ui.model.json.JSONModel({  
+      data : data
+      // data : [{ country : 'China', product : 'Car', profit : 32 },  
+      // { country : 'France', product : 'Car', profit : 43 },  
+      // { country : 'Germany', product : 'Car', profit : 34 },  
+      // { country : 'USA', product : 'Car', profit : 25 },  
+      // { country : 'China', product : 'Truck', profit : 78 },  
+      // { country : 'France', product : 'Truck', profit : 86 },  
+      // { country : 'Germany', product : 'Truck', profit : 56 },  
+      // { country : 'USA', product : 'Truck', profit : 76 },  
+      // { country : 'China', product : 'Motorcycle', profit : 78 },  
+      // { country : 'France', product : 'Motorcycle', profit : 86 },  
+      // { country : 'Germany', product : 'Motorcycle', profit : 56 },  
+      // { country : 'USA', product : 'Motorcycle', profit : 76 },  
+      // { country : 'China', product : 'Bicycle', profit : 78 },  
+      // { country : 'France', product : 'Bicycle', profit : 86 },  
+      // { country : 'Germany', product : 'Bicycle', profit : 56 },  
+      // { country : 'USA', product : 'Bicycle', profit : 76 }] 
+    });  
+    
+    sap.ui.getCore().setModel(oModel);  
+
+    var filter = new sap.ui.model.Filter("carrier", sap.ui.model.FilterOperator.EQ, "WN");
+    // var filter = new sap.ui.model.Filter("product", sap.ui.model.FilterOperator.EQ, 'Truck');
+    
+    var dataset = new sap.viz.ui5.data.FlattenedDataset({  
+      dimensions : [  
+        { axis : 1, name : 'Carrier', value : "{carrier}" },
+        { axis : 2, name : 'Month', value : "{month}" } 
+      ],  
+      measures : [  
+        { name : 'Delay', value : '{delay}' }  
+      ]
+      // dimensions : [
+      //   { axis: 1, name: 'Country', value: '{country}' },
+      //   { axis: 2, name: 'Product', value: '{product}' }
+      // ],
+      // measures: [
+      //   { name: 'Profit', value: '{profit}' }
+      // ]
+    }).bindData("/data", null, null, [filter]); 
+    
+    new sap.viz.ui5.StackedColumn("oChart",{  
+      width : "100%",  
+      height : "200px",  
+      title : { visible : true, text : '2007 Delay by Carrier and Month' },  
+      dataset : dataset
+    }).placeAt("content");  
+
+  });
+  
+</script>  
+</head>  
+<body class="sapUiBody">  
+  <div id="content"></div>  
+</body>  
+</html>  
