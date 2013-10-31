@@ -10,9 +10,10 @@
    data-sap-ui-libs="sap.ui.commons, sap.viz"></script>
 </script>  
 <script src="./lib/d3.min.js"></script>
+<script src="./lib/crossfilter.min.js"></script>
 <script>  
 
-  d3.csv('data/2007_extra_small.csv', function(d) {
+  d3.csv('data/2007_medium.csv', function(d) {
     return {
       // date: parseDate(d),
       delay: isNaN(+d.ArrDelay) ? 0 : +d.ArrDelay,
@@ -21,29 +22,35 @@
       month: "" + d.Month
     };
   }, function (errors, data) {
+    var xfilter = crossfilter(data);
+    var flightsByCarrier = xfilter.dimension(function (d) { return d.carrier; });
+    
+    // var filterDimension = xfilter.dimension(function (d) { return d.carrier; });    
+    // filterDimension.filter("WN");
+    // filterDimension.filter(function (d) { return d == "WN" || d == "UA" || d == "AA" });
+
+    var distanceByCarrier = flightsByCarrier.group().reduceSum(function (d) { return d.distance; });
+
     var oModel = new sap.ui.model.json.JSONModel({  
-      data : data
+      data : distanceByCarrier.top(Infinity).filter(function (d) { return d.value !== 0; })
     });  
     
     sap.ui.getCore().setModel(oModel);  
-
-    var filter = new sap.ui.model.Filter("carrier", sap.ui.model.FilterOperator.EQ, "WN");
     
     var dataset = new sap.viz.ui5.data.FlattenedDataset({  
       dimensions : [  
-        { axis : 1, name : 'Carrier', value : "{carrier}" },
-        { axis : 2, name : 'Month', value : "{month}" } 
+        { axis : 1, name : 'Carrier', value : "{key}" },
+        { axis : 2, name : 'Year', value : "2007" } 
       ],  
       measures : [  
-        { name : 'Distance', value : '{distance}' }  
+        { name : 'Distance', value : '{value}' }  
       ]
-      // Note - this will only display the first record in each group.
-    }).bindData("/data", null, null, [filter]); 
+    }).bindData("/data", null, null, []);
     
     new sap.viz.ui5.StackedColumn("oChart",{  
       width : "100%",  
       height : "200px",  
-      title : { visible : true, text : '2007 Distance by Carrier and Month' },  
+      title : { visible : true, text : '2007 Distance by Carrier and Year' },  
       dataset : dataset
     }).placeAt("content");  
 
