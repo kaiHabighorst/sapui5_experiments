@@ -13,7 +13,7 @@
 <script src="./lib/crossfilter.min.js"></script>
 <script>  
 
-  d3.csv('data/2007_medium.csv', function(d) {
+  d3.csv('data/2007_small.csv', function(d) {
     return {
       // date: parseDate(d),
       delay: isNaN(+d.ArrDelay) ? 0 : +d.ArrDelay,
